@@ -126,6 +126,16 @@ void mousePressed() {
     } else if (mouseX >= 550 && mouseX <= 750 && mouseY >= (height/3 + 150) && mouseY <= (height/3 + 250)) {
       gameState = "scores";
     }
+  } else if (gameState.equals("gameover")) {
+    if (mouseX >= 250 && mouseX <= 450 && mouseY >= height/3 && mouseY <= height/3 + 100) {
+      // Replay button
+      reset();
+      gameState = "classic";  // Or any other default gameplay mode
+      classicModeMusic.jump(0);
+    } else if (mouseX >= 550 && mouseX <= 750 && mouseY >= height/3 && mouseY <= height/3 + 100) {
+      // Menu button
+      gameState = "menu";
+    }
   } else if (gameState.equals("scores") || gameState.equals("tutorial") || gameState.equals("gameplay") || gameState.equals("classic") || gameState.equals("hard")) {
     // Return to menu
     if (mouseX >= 25 && mouseX <= 125 && mouseY >= 25 && mouseY <= 75) {
@@ -215,7 +225,8 @@ void gameplayScreen() {
     }
     gameOverSFX.jump(0);
     leaderboard.updateLeaderboard(score, gameState);
-    gameState = "menu";
+    gameState = "gameover";
+
   }
 
   // Menu Button
@@ -230,6 +241,24 @@ void gameplayScreen() {
 //Draw, format, and run gameover screen
 void gameoverScreen() {
   //TODO
+  background(255);
+  fill(0);
+  textSize(50);
+  textAlign(CENTER, CENTER);
+  text("Game Over :(", width/2, 200, 3);
+  textSize(24);
+  
+  // Replay Button
+  fill(#4806C6);
+  rect(250, height/3, 200, 100, 20);
+  fill(255);
+  text("Replay", 350, height/3 + 50);
+
+  // Menu Button
+  fill(#4806C6);
+  rect(550, height/3, 200, 100, 20);
+  fill(255);
+  text("Menu", 650, height/3 + 50);
 }
 
 void highScoresScreen() {
