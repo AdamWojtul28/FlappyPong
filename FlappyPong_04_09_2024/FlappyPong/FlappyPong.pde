@@ -46,6 +46,9 @@ ArrayList<Wall> walls = new ArrayList<Wall>();  //Array of walls
 // Sound
 SoundFile classicModeMusic, hardModeMusic, zapSFX, gameOverSFX;
 
+String gameInfoFile;
+boolean fileExists;
+
 int minGapHeight = 200;
 int maxGapHeight = 300;
 int wallWidth = 30;
@@ -67,13 +70,23 @@ void setup() {
   hardModeMusic = new SoundFile(this, "85046_newgrounds_parago.mp3", false);
   zapSFX = new SoundFile(this, "laser-zap-90575.mp3", false);
   gameOverSFX = new SoundFile(this, "Bum Bum Ba Bum200734-424bf6bb-0f17-4a67-8335-95712032829b.mp3", false);
-  
-  
+
+  gameInfoFile = "game_data.txt";
+  fileExists = doesFileExist(gameInfoFile);
+  // if a file exists with info about the user's previous scores, it is imported
+  if (fileExists) {
+    leaderboard.setLeaderboard(loadStrings(gameInfoFile));
+  }
 
   score = 0;
   lastWallInSight = 0;
   lastAddWallTime = millis();
   wallInterval = 1000;
+}
+
+// checks if file with data exists and if not then it initializes it
+boolean doesFileExist(String filePath) {
+  return new File(dataPath(filePath)).exists();
 }
 
 //Calls the screen that should be displayed at each state of the game
@@ -125,6 +138,10 @@ void mousePressed() {
       gameState = "tutorial";
     } else if (mouseX >= 550 && mouseX <= 750 && mouseY >= (height/3 + 150) && mouseY <= (height/3 + 250)) {
       gameState = "scores";
+    } else if (mouseX >= width/2 - 50 && mouseX <= width/2 + 50 && mouseY >= height*0.75 && mouseY <= height*0.75 + 50) {
+      // saves the user's scores to file 
+      saveStrings(dataPath(gameInfoFile), leaderboard.getStats());
+      exit();
     }
   } else if (gameState.equals("gameover")) {
     if (mouseX >= 250 && mouseX <= 450 && mouseY >= height/3 && mouseY <= height/3 + 100) {
@@ -187,6 +204,13 @@ void menuScreen() {
   rect(550, height/3 + 150, 200, 100, 28);
   fill(255);
   text("High Scores", 650, height/3 + 200);
+
+
+  // Exit Button
+  fill(#FF0000);
+  rect(width/2 - 50, height*0.75, 100, 50);
+  fill(0);
+  text("Exit", width/2, height*0.75 + 25);
 }
 
 //Draw, format, and run game
@@ -217,16 +241,15 @@ void gameplayScreen() {
   checkWallCollision();
 
   if (!health.checkAlive()) {
-    if(classicModeMusic.isPlaying()){
+    if (classicModeMusic.isPlaying()) {
       classicModeMusic.pause();
     }
-    if(hardModeMusic.isPlaying()){
+    if (hardModeMusic.isPlaying()) {
       hardModeMusic.pause();
     }
     gameOverSFX.jump(0);
     leaderboard.updateLeaderboard(score, gameState);
     gameState = "gameover";
-
   }
 
   // Menu Button
@@ -247,7 +270,7 @@ void gameoverScreen() {
   textAlign(CENTER, CENTER);
   text("Game Over :(", width/2, 200, 3);
   textSize(24);
-  
+
   // Replay Button
   fill(#4806C6);
   rect(250, height/3, 200, 100, 20);
